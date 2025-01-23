@@ -1,4 +1,5 @@
 
+import { getAuthSession } from "@/app/utils/auth";
 import prisma from "@/app/utils/connect";
 import { NextResponse } from "next/server"
 
@@ -22,4 +23,32 @@ export const GET = async (req) => {
             JSON.stringify({message: "Something went wrong"}, {status: 500})
         )
     }
+}
+
+
+
+
+
+//CREATE A COMMENT
+export const POST = async (req) => {
+
+  const session = await getAuthSession()
+
+  if(!session){
+    JSON.stringify({message: "Not authenticated"}, {status: 401})
+  }
+
+  try{
+      const body = await req.json() 
+      const comment = await prisma.comment.create({
+        data: { ...body, userEmail: session.user.email }
+      });
+      return new NextResponse(JSON.stringify(comment, {status: 200}))
+  }
+  catch(err){
+      console.log(err)
+      return new NextResponse(
+          JSON.stringify({message: "Something went wrong"}, {status: 500})
+      )
+  }
 }

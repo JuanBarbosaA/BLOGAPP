@@ -9,15 +9,17 @@ export default function LoginPage() {
     const { data, status } = useSession()
     const router = useRouter()
 
-    if (status === "loading") {
-        return <div className={styles.loading}>Loading...</div>
-    }
 
     useEffect(() => {
         if (status === "authenticated") {
             router.push("/")
         }
     }, [status, router])
+
+    if (status === "loading") {
+        return <div className={styles.loading}>Loading...</div>
+    }
+
 
     console.log(data, status)
 
