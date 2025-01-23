@@ -2,7 +2,6 @@
 import prisma from "@/app/utils/connect";
 import { NextResponse } from "next/server"
 
-//GET SINGLE POST
 export const GET = async (req) => {
     const {searchParams} = new URL(req.url)
 
@@ -21,8 +20,14 @@ export const GET = async (req) => {
     try{
         const [posts, count] = await prisma.$transaction([
             prisma.post.findMany(query),
-            prisma.post.count() 
+            prisma.post.count({where: query.where}) 
         ])
-        return new NextResponse(JSON.stringify({}))
+        return new NextResponse(JSON.stringify({posts, count}, {status: 200}))
+    }
+    catch(err){
+        console.log(err)
+        return new NextResponse(
+            JSON.stringify({message: "Something went wrong"}, {status: 500})
+        )
     }
 }
