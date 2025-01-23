@@ -24,13 +24,13 @@ export default async function SinglePage({params}){
                 <div className={styles.textContainer}>
                     <h1 className={styles.title}>{data?.title}</h1>
                     <div className={styles.user}>
-                        {data?.img && (
+                        {data?.user?.image && (
                             <div className={styles.userImageContainer}>
-                                <Image src={data.img} alt="" fill className={styles.avatar}/>
+                                <Image src={data.user.image} alt="" fill className={styles.avatar}/>
                             </div>
                         )}
                         <div className={styles.userTextContainer}>
-                            <span className={styles.username}>John Doe</span>
+                            <span className={styles.username}>{data?.user.name}</span>
                             <span className={styles.date}>01.01.2024</span>
                         </div>
                     </div>
@@ -45,7 +45,7 @@ export default async function SinglePage({params}){
                 <div className={styles.post}>
                     <div className={styles.description} dangerouslySetInnerHTML={{__html: data?.desc}}/>
                     <div className={styles.comment}>
-                        <Comments/>
+                        <Comments postSlug={slug}/>
                     </div>
                 </div>
                 <Menu/>

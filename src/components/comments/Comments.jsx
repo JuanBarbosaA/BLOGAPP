@@ -1,11 +1,28 @@
+"use client"
 import Image from "next/image"
 import styles from "./comments.module.css"
 import Link from "next/link"
-export default function Comments(){
-    
-    const status = "authenticated"
+import useSWR from "swr"
+import { useSession } from "next-auth/react"
+
+const fetcher = async(url) => {
+    const res = await fetch(url);
+    const data = await res.json()
+    if(!res.ok){
+        const error = new Error(data.message);
+        throw error
+    }
+    return data
+}
+
+export default function Comments({postSlug}){
+
+    const status = useSession()
+
+    const {data, isLoading} = useSWR(`http://localhost:3000/api/comments?postSlug=${postSlug}`, fetcher)
 
     return(
+
         <div className={styles.container}>
             <h1 className={styles.title}>Comments</h1>
             {status === "authenticated" ? (
@@ -17,16 +34,24 @@ export default function Comments(){
                 <Link href="/login">Login to wirte a comment</Link>
             )}
             <div className={styles.comments}>
-                <div className={styles.comment}>
-                    <div className={styles.user}>
-                        <Image src="/p1.jpeg" alt="" width={50} height={50} className={styles.image}/>
-                        <div className={styles.userInfo}>
-                            <span className={styles.username}>John Doe</span>
-                            <span className={styles.date}>01.01.2023</span>
+
+                {isLoading ? "Loading..." : (
+                    data?.map(item => (
+                        <div key={item._id} className={styles.comment}>
+                            <div className={styles.user}>
+                                {item?.user?.image && (
+                                    <Image src={item.user.image} alt="" width={50} height={50} className={styles.image}/>
+                                )}
+                                <div className={styles.userInfo}>
+                                    <span className={styles.username}>{item.user.name}</span>
+                                    <span className={styles.date}>{item.createdAt}</span>
+                                </div>
+                            </div>
+                            <p className={styles.desc}>{item.desc}</p>
                         </div>
-                    </div>
-                    <p className={styles.desc}>Description</p>
-                </div>
+                    ))
+                )}
+
             </div>
         </div>
     )
